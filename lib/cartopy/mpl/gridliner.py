@@ -81,6 +81,45 @@ def _north_south_formatted(latitude, num_format='g'):
                              hemisphere=_lat_heimisphere(latitude),
                              degree=_DEGREE_SYMBOL)
 
+def _east_west_formatted_minutes(longitude, num_format='d',num_format_minutes='05.2f'):
+    fmt_string = u'{longitude:{num_format}}{degree}{minutes:{num_format_minutes}}{minutes_symbol}{hemisphere}'
+    minutes = np.mod(abs(longitude),1)
+    lon = int(abs(longitude) - minutes)
+    minutes = minutes * 60
+    return fmt_string.format(longitude=lon, num_format=num_format,
+                             minutes=minutes, num_format_minutes=num_format_minutes,
+                             minutes_symbol="'",
+                             hemisphere=_lon_heimisphere(longitude),
+                             degree=_DEGREE_SYMBOL)
+
+def _north_south_formatted_minutes(latitude, num_format='d',num_format_minutes='05.2f'):
+    fmt_string = u'{latitude:{num_format}}{degree}{minutes:{num_format_minutes}}{minutes_symbol}{hemisphere}'
+    minutes = np.mod(abs(latitude),1)
+    lon = int(abs(latitude) - minutes)
+    minutes = minutes * 60
+    return fmt_string.format(latitude=lon, num_format=num_format,
+                             minutes=minutes, num_format_minutes=num_format_minutes,
+                             minutes_symbol="'",
+                             hemisphere=_lat_heimisphere(latitude),
+                             degree=_DEGREE_SYMBOL)
+
+
+def lon_formatter(degformat="decimal"):
+    if degformat == "decimal":
+        return mticker.FuncFormatter(lambda v, pos:
+                                     _east_west_formatted(v))
+    elif degformat == "DMS":
+        return mticker.FuncFormatter(lambda v, pos:
+                                     _east_west_formatted_minutes(v))
+
+def lat_formatter(degformat="decimal"):
+    if degformat == "decimal":
+        return mticker.FuncFormatter(lambda v, pos:
+                                     _north_south_formatted(v))
+    elif degformat == "DMS":
+        return mticker.FuncFormatter(lambda v, pos:
+                                     _north_south_formatted_minutes(v))
+    # else notimplemented  catch etc.
 
 #: A formatter which turns longitude values into nice longitudes such as 110W
 LONGITUDE_FORMATTER = mticker.FuncFormatter(lambda v, pos:
@@ -88,8 +127,6 @@ LONGITUDE_FORMATTER = mticker.FuncFormatter(lambda v, pos:
 #: A formatter which turns longitude values into nice longitudes such as 45S
 LATITUDE_FORMATTER = mticker.FuncFormatter(lambda v, pos:
                                            _north_south_formatted(v))
-    
-# Insert additions here - DV test cartopy dev build
 
 
 class Gridliner(object):
